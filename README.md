@@ -5,27 +5,6 @@
 > **Outil principal :** Frida 17.9.1 — Dynamic Instrumentation Toolkit
 > **Application cible :** DIVA (Damn Insecure and Vulnerable App) — `jakhar.aseem.diva`
 > **Environnement :** Windows 11 + Émulateur Android (AVD API 23 — `emulator-5554`)
-> **Niveau :** Intermédiaire / Avancé
-
----
-
-## Table des Matières
-
-1. [Introduction et Objectifs](#1-introduction-et-objectifs)
-2. [Architecture Générale du Lab](#2-architecture-générale-du-lab)
-3. [Environnement et Outils](#3-environnement-et-outils)
-4. [Étape 1 — Installation du Client Frida](#4-étape-1--installation-du-client-frida)
-5. [Étape 2 — Installation des Outils Android (ADB)](#5-étape-2--installation-des-outils-android-adb)
-6. [Étape 3 — Déploiement de frida-server sur Android](#6-étape-3--déploiement-de-frida-server-sur-android)
-7. [Étape 4 — Test de Connexion depuis le PC](#7-étape-4--test-de-connexion-depuis-le-pc)
-8. [Étape 5 — Injection Minimale pour Valider](#8-étape-5--injection-minimale-pour-valider)
-9. [Étape 6 — Console Interactive Frida](#9-étape-6--console-interactive-frida)
-10. [Étape 7 — Analyse Native : Réseau, Fichiers, Bibliothèques](#10-étape-7--analyse-native--réseau-fichiers-bibliothèques)
-11. [Étape 8 — Hooking Java : SharedPreferences, SQLite, Debug](#11-étape-8--hooking-java--sharedpreferences-sqlite-debug)
-12. [Synthèse et Interprétation Sécurité](#12-synthèse-et-interprétation-sécurité)
-13. [Recommandations de Sécurité](#13-recommandations-de-sécurité)
-14. [Conclusion](#14-conclusion)
-15. [Références](#15-références)
 
 ---
 
@@ -253,17 +232,7 @@ Fichier à télécharger : `frida-server-17.9.1-android-x86_64.xz`
 > Décompresser avec **7-Zip** sous Windows pour obtenir le binaire `frida-server`.
 
 ### 3.3 Déployer sur l'Émulateur
-
-```powershell
-# Copier le binaire vers l'émulateur
-adb push frida-server /data/local/tmp/
-
-# Rendre exécutable
-adb shell chmod 755 /data/local/tmp/frida-server
-
-# Lancer en arrière-plan
-adb shell "/data/local/tmp/frida-server &"
-```
+<p align="center"> <img src="images/a10.png" width="500"> </p>
 
 ### 3.4 Vérifier que frida-server est Actif
 
@@ -271,16 +240,7 @@ adb shell "/data/local/tmp/frida-server &"
 adb shell /data/local/tmp/frida-server --version
 ```
 
-> **Screenshot :** `adb shell /data/local/tmp/frida-server --version` → `17.9.1`
-
-![Vérification frida-server version](screenshots/frida_server_version.png)
-
-### 3.5 Configurer la Redirection de Ports (optionnel)
-
-```powershell
-adb forward tcp:27042 tcp:27042
-adb forward tcp:27043 tcp:27043
-```
+<p align="center"> <img src="images/a5.png" width="700"> </p>
 
 ---
 
@@ -291,14 +251,7 @@ adb forward tcp:27043 tcp:27043
 ```powershell
 frida-ps -U
 ```
-
-**Résultat attendu :** une liste de tous les processus en cours sur l'émulateur.
-
-```powershell
-frida-ps -Uai
-```
-
-Cette variante affiche aussi les **applications installées** avec leur package name.
+<p align="center"> <img src="images/a7.png" width="500"> </p>
 
 ### 4.2 Vérifier la Présence de DIVA
 
@@ -314,13 +267,6 @@ frida-ps -Uai | findstr "diva"
 
 > Si DIVA apparaît dans la liste, la connexion Frida est **fonctionnelle** et l'application est **accessible** pour l'injection.
 
-### Tableau de Validation Étape 4
-
-| Commande | Résultat attendu | Statut |
-|----------|-----------------|--------|
-| `adb devices` | `emulator-5554 device` | ✅ |
-| `frida-ps -U` | Liste des processus Android | ✅ |
-| `frida-ps -Uai` | Liste avec package names | ✅ |
 
 ---
 
@@ -340,18 +286,7 @@ Java.perform(function () {
 
 Lancer l'injection :
 
-```powershell
-frida -U -f jakhar.aseem.diva -l .\hello.js
-```
-
-**Résultat attendu :**
-
-```
-Connected to Android Emulator 5554 (id=emulator-5554)
-Spawning `jakhar.aseem.diva`...
-[+] Frida Java.perform OK
-Spawned `jakhar.aseem.diva`. Resuming main thread!
-```
+<p align="center"> <img src="images/a11.png" width="700"> </p>
 
 > **Explication :** `Java.perform()` attend que la machine virtuelle Java soit prête, puis exécute le callback. Le message confirme que Frida a bien accès à la JVM de l'application.
 
@@ -371,16 +306,7 @@ Interceptor.attach(Module.getExportByName(null, "recv"), {
 
 Lancer l'injection :
 
-```powershell
-frida -U -f jakhar.aseem.diva -l .\hello_native.js
-```
-
-**Résultat attendu :**
-
-```
-[+] Script chargé
-[+] recv appelée   ← apparaît lors d'une opération réseau
-```
+<p align="center"> <img src="images/a12.png" width="500"> </p>
 
 ### Comparaison des Deux Approches
 
@@ -426,6 +352,8 @@ Process.platform
 // Architecture
 Process.arch
 ```
+<p align="center"> <img src="images/a13.png" width="700"> </p>
+<p align="center"> <img src="images/a21.png" width="700"> </p>
 
 **Résultats typiques :**
 
@@ -437,29 +365,19 @@ Process.arch
 
 #### Vérification de la Disponibilité Java
 
-```javascript
-Java.available
-```
+<p align="center"> <img src="images/a18.png" width="700"> </p>
 
 > **Résultat :** `true` → L'environnement Java est accessible, le hooking de classes Java est possible.
 
 #### Recherche de Bibliothèques Crypto
 
-```javascript
-Process.enumerateModules().filter(m =>
-  m.name.indexOf("ssl") !== -1 ||
-  m.name.indexOf("crypto") !== -1 ||
-  m.name.indexOf("boring") !== -1
-)
-```
+<p align="center"> <img src="images/a20.png" width="600"> </p>
 
 **Interprétation :** Si des modules contenant `ssl`, `crypto` ou `boring` sont présents, l'application charge des composants liés au chiffrement TLS ou à la cryptographie native.
 
 #### Énumération des Zones Mémoire Exécutables
 
-```javascript
-Process.enumerateRanges('r-x')
-```
+<p align="center"> <img src="images/a17.png" width="600"> </p>
 
 **Interprétation :** Cette commande liste les régions mémoire avec droits de lecture et d'exécution — zones susceptibles de contenir du code natif.
 
@@ -492,23 +410,7 @@ Application DIVA
 
 #### Script : `hook_connect.js`
 
-```javascript
-console.log("[+] Hook connect chargé");
-
-const connectPtr = Process.getModuleByName("libc.so").getExportByName("connect");
-console.log("[+] connect trouvée à : " + connectPtr);
-
-Interceptor.attach(connectPtr, {
-  onEnter(args) {
-    console.log("[+] connect appelée");
-    console.log("    fd = " + args[0]);
-    console.log("    sockaddr = " + args[1]);
-  },
-  onLeave(retval) {
-    console.log("    retour = " + retval.toInt32());
-  }
-});
-```
+<p align="center"> <img src="images/a24.png" width="500"> </p>
 
 #### Commande d'Exécution
 
@@ -518,22 +420,9 @@ frida -U -f jakhar.aseem.diva -l .\hook_connect.js
 
 #### Résultat Obtenu
 
-```
-Connected to Android Emulator 5554 (id=emulator-5554)
-Spawning `jakhar.aseem.diva`...
-[+] Hook connect chargé
-[+] connect trouvée à : 0x75c24db75ef0
-Spawned `jakhar.aseem.diva`. Resuming main thread!
+<p align="center"> <img src="images/a25.png" width="600"> </p>
 
-[Android Emulator 5554::jakhar.aseem.diva]-> [+] connect appelée
-    fd = 0x30
-    sockaddr = 0x7fffa2ac9a60
-    retour = 0
-```
 
-> **Screenshot :** Résultat du hook connect dans PowerShell
-
-![hook_connect résultat](screenshots/hook_connect_result.png)
 
 #### Interprétation Détaillée
 
@@ -552,34 +441,7 @@ Spawned `jakhar.aseem.diva`. Resuming main thread!
 
 #### Script : `hook_network.js`
 
-```javascript
-console.log("[+] Hooks réseau chargés");
-
-const sendPtr = Process.getModuleByName("libc.so").getExportByName("send");
-const recvPtr = Process.getModuleByName("libc.so").getExportByName("recv");
-
-console.log("[+] send trouvée à : " + sendPtr);
-console.log("[+] recv trouvée à : " + recvPtr);
-
-Interceptor.attach(sendPtr, {
-  onEnter(args) {
-    console.log("[+] send appelée");
-    console.log("    fd = " + args[0]);
-    console.log("    len = " + args[2].toInt32());
-  }
-});
-
-Interceptor.attach(recvPtr, {
-  onEnter(args) {
-    console.log("[+] recv appelée");
-    console.log("    fd = " + args[0]);
-    console.log("    len demandé = " + args[2].toInt32());
-  },
-  onLeave(retval) {
-    console.log("    recv retourne = " + retval.toInt32());
-  }
-});
-```
+<p align="center"> <img src="images/a26.png" width="500"> </p>
 
 #### Commande d'Exécution
 
@@ -589,22 +451,7 @@ frida -U -f jakhar.aseem.diva -l .\hook_network.js
 
 #### Résultat Attendu
 
-```
-[+] Hooks réseau chargés
-[+] send trouvée à : 0x...
-[+] recv trouvée à : 0x...
-[+] send appelée
-    fd = 0x30
-    len = 128
-[+] recv appelée
-    fd = 0x30
-    len demandé = 4096
-    recv retourne = 256
-```
-
-> **Screenshot :** Résultat du hook network
-
-![hook_network résultat](screenshots/hook_network_result.png)
+<p align="center"> <img src="images/a27.png" width="500"> </p>
 
 #### Interprétation
 
@@ -622,31 +469,7 @@ frida -U -f jakhar.aseem.diva -l .\hook_network.js
 ### 7.3 Hook sur open/read — Accès au Système de Fichiers
 
 #### Script : `hook_file.js`
-
-```javascript
-console.log("[+] Hook fichiers chargé");
-
-const openPtr = Process.getModuleByName("libc.so").getExportByName("open");
-const readPtr  = Process.getModuleByName("libc.so").getExportByName("read");
-
-console.log("[+] open trouvée à : " + openPtr);
-console.log("[+] read trouvée à : " + readPtr);
-
-Interceptor.attach(openPtr, {
-  onEnter(args) {
-    this.path = args[0].readUtf8String();
-    console.log("[+] open appelée : " + this.path);
-  }
-});
-
-Interceptor.attach(readPtr, {
-  onEnter(args) {
-    console.log("[+] read appelée");
-    console.log("    fd    = " + args[0]);
-    console.log("    taille = " + args[2].toInt32());
-  }
-});
-```
+<p align="center"> <img src="images/a28.png" width="500"> </p>
 
 #### Commande d'Exécution
 
@@ -656,28 +479,8 @@ frida -U -f jakhar.aseem.diva -l .\hook_file.js
 
 #### Résultat Obtenu (extrait)
 
-```
-[+] Hook fichiers chargé
-[+] open trouvée à : 0x...
-[+] read trouvée à : 0x...
-[+] open appelée : /proc/self/cmdline
-[+] open appelée : /system/framework/oat/x86_64/org.apache.http.legacy.vdex
-[+] open appelée : /system/framework/org.apache.http.legacy.jar
-[+] open appelée : /apex/com.android.art/javalib/x86_64/boot.art
-[+] open appelée : /data/app/.../jakhar.aseem.diva.../base.apk
-[+] open appelée : /data/user/0/jakhar.aseem.diva/databases/divanotes.db  ← IMPORTANT
-[+] read appelée
-    fd     = 0x26
-    taille = 8
-[+] read appelée
-    fd     = 0x33
-    taille = 524288
-```
+<p align="center"> <img src="images/a29.png" width="500"> </p>
 
-> **Screenshots :** Résultats du hook_file dans PowerShell
-
-![hook_file résultat 1](screenshots/hook_file_result1.png)
-![hook_file résultat 2](screenshots/hook_file_result2.png)
 
 #### Analyse Détaillée des Fichiers Observés
 
@@ -690,23 +493,6 @@ frida -U -f jakhar.aseem.diva -l .\hook_file.js
 | **`/data/user/0/jakhar.aseem.diva/databases/divanotes.db`** | **DIVA — Données** | **Base SQLite interne de l'application** |
 
 > **Point critique :** L'ouverture de `divanotes.db` prouve que DIVA utilise une base SQLite locale pour stocker des données persistantes. Ce fichier sera notre cible dans l'étape 8.
-
-#### Interprétation Globale
-
-```
-Fichiers observés :
-├── Fichiers SYSTÈME (normaux)
-│   ├── /proc/self/cmdline         → auto-identification du processus
-│   ├── /system/framework/*.vdex   → chargement du runtime Java
-│   └── /apex/com.android.art/...  → ART runtime images
-│
-├── Fichiers APPLICATION
-│   └── /data/app/.../base.apk     → ressources de l'APK
-│
-└── ⚠ Fichiers DONNÉES SENSIBLES
-    └── /data/user/0/jakhar.aseem.diva/databases/divanotes.db
-        → BASE SQLITE LOCALE — stockage de données applicatives
-```
 
 ---
 
@@ -742,43 +528,11 @@ Avant de lancer tout hook Java, on vérifie l'accès à la JVM :
 ```powershell
 frida -U -f jakhar.aseem.diva
 ```
-
-Dans la console Frida :
-
-```javascript
-Java.available
-```
-
-**Résultat :** `true`
-
-> L'environnement Java est accessible. Frida peut hooker des méthodes Java de DIVA.
-
----
+<p align="center"> <img src="images/a32.png" width="500"> </p>
 
 ### 8.2 Recherche de Classes Java Sensibles
 
 Dans la console Frida :
-
-```javascript
-Java.perform(function () {
-  Java.enumerateLoadedClasses({
-    onMatch: function (name) {
-      if (
-        name.toLowerCase().indexOf("security") !== -1 ||
-        name.toLowerCase().indexOf("crypto")   !== -1 ||
-        name.toLowerCase().indexOf("prefs")    !== -1 ||
-        name.toLowerCase().indexOf("sqlite")   !== -1 ||
-        name.toLowerCase().indexOf("storage")  !== -1
-      ) {
-        console.log(name);
-      }
-    },
-    onComplete: function () {
-      console.log("Fin de l'énumération");
-    }
-  });
-});
-```
 
 **Mots-clés recherchés :** `security`, `crypto`, `prefs`, `sqlite`, `storage`
 
@@ -790,27 +544,7 @@ Java.perform(function () {
 
 #### Script : `hook_prefs.js`
 
-```javascript
-Java.perform(function () {
-  console.log("[+] Hook SharedPreferences chargé");
-
-  var Impl = Java.use("android.app.SharedPreferencesImpl");
-
-  Impl.getString.overload("java.lang.String", "java.lang.String")
-    .implementation = function (key, defValue) {
-      var result = this.getString(key, defValue);
-      console.log("[SharedPreferences][getString] key=" + key + " => " + result);
-      return result;
-  };
-
-  Impl.getBoolean.overload("java.lang.String", "boolean")
-    .implementation = function (key, defValue) {
-      var result = this.getBoolean(key, defValue);
-      console.log("[SharedPreferences][getBoolean] key=" + key + " => " + result);
-      return result;
-  };
-});
-```
+<p align="center"> <img src="images/a42ç.png" width="500"> </p>
 
 ```powershell
 frida -U -f jakhar.aseem.diva -l .\hook_prefs.js
@@ -822,47 +556,16 @@ frida -U -f jakhar.aseem.diva -l .\hook_prefs.js
 
 ---
 
-### 8.4 Hook SharedPreferences — Écritures ⭐
+### 8.4 Hook SharedPreferences — Écritures 
 
 #### Script : `hook_prefs_write.js`
 
-```javascript
-Java.perform(function () {
-  console.log("[+] Hook écriture SharedPreferences chargé");
-
-  var EditorImpl = Java.use("android.app.SharedPreferencesImpl$EditorImpl");
-
-  EditorImpl.putString.overload("java.lang.String", "java.lang.String")
-    .implementation = function (key, value) {
-      console.log("[SharedPreferences][putString] key=" + key + " value=" + value);
-      return this.putString(key, value);
-  };
-
-  EditorImpl.putBoolean.overload("java.lang.String", "boolean")
-    .implementation = function (key, value) {
-      console.log("[SharedPreferences][putBoolean] key=" + key + " value=" + value);
-      return this.putBoolean(key, value);
-  };
-});
-```
+<p align="center"> <img src="images/a41.png" width="600"> </p>
 
 ```powershell
 frida -U -f jakhar.aseem.diva -l .\hook_prefs_write.js
 ```
-
-#### Résultat Obtenu ⭐
-
-```
-[+] Hook écriture SharedPreferences chargé
-[SharedPreferences][putString] key=user     value=fff
-[SharedPreferences][putString] key=password value=
-[SharedPreferences][putString] key=user     value=fff
-[SharedPreferences][putString] key=password value=hhhh
-```
-
-> **Screenshot :** Résultat hook_prefs_write
-
-![hook_prefs_write résultat](screenshots/hook_prefs_write_result.png)
+<p align="center"> <img src="images/a40.png" width="600"> </p>
 
 #### Interprétation Détaillée
 
@@ -878,46 +581,17 @@ frida -U -f jakhar.aseem.diva -l .\hook_prefs_write.js
 
 ### 8.5 Hook SQLite — Requêtes SQL ⭐
 
-#### Script : `hook_sqlite.js`
-
-```javascript
-Java.perform(function () {
-  console.log("[+] Hook SQLite chargé");
-
-  var SQLiteDatabase = Java.use("android.database.sqlite.SQLiteDatabase");
-
-  SQLiteDatabase.execSQL.overload("java.lang.String")
-    .implementation = function (sql) {
-      console.log("[SQLite][execSQL] " + sql);
-      return this.execSQL(sql);
-  };
-
-  SQLiteDatabase.rawQuery
-    .overload("java.lang.String", "[Ljava.lang.String;")
-    .implementation = function (sql, args) {
-      console.log("[SQLite][rawQuery] " + sql);
-      return this.rawQuery(sql, args);
-  };
-});
-```
-
 ```powershell
 frida -U -f jakhar.aseem.diva -l .\hook_sqlite.js
 ```
+<p align="center"> <img src="images/a43.png" width="500"> </p>
 
 Action effectuée dans DIVA : Navigation vers **INSECURE DATA STORAGE PART 1**, saisie de données utilisateur.
 
 #### Résultat Obtenu ⭐
+<p align="center"> <img src="images/a44.png" width="500"> </p>
 
-```
-[+] Hook SQLite chargé
-[SQLite][execSQL] CREATE TABLE IF NOT EXISTS myuser(user VARCHAR, password VARCHAR);
-[SQLite][execSQL] INSERT INTO myuser VALUES ('hajar', 'chaira');
-```
 
-> **Screenshot :** Résultat hook_sqlite avec CREATE TABLE et INSERT
-
-![hook_sqlite résultat](screenshots/hook_sqlite_result.png)
 
 #### Interprétation Détaillée
 
@@ -944,17 +618,6 @@ INSERT INTO myuser VALUES ('hajar', 'chaira');
 
 > **Vulnérabilité critique :** Le mot de passe est stocké **en clair dans une base SQLite**. La base `divanotes.db` est accessible depuis le stockage interne sur un appareil rooté ou via ADB.
 
-#### Corrélation Native ↔ Java
-
-```
-Étape 7 (natif) : open détecte...
-   /data/user/0/jakhar.aseem.diva/databases/divanotes.db
-                         ↕ même fichier
-Étape 8 (java) : hook SQLite intercepte...
-   CREATE TABLE myuser(user, password)
-   INSERT INTO myuser VALUES('hajar', 'chaira')
-```
-
 La **corrélation entre le hook natif (open)** et le **hook Java (SQLite)** confirme que c'est bien `divanotes.db` qui stocke ces données structurées.
 
 ---
@@ -962,26 +625,7 @@ La **corrélation entre le hook natif (open)** et le **hook Java (SQLite)** conf
 ### 8.6 Hook Debug — Vérifications Anti-Debug
 
 #### Script : `hook_debug.js`
-
-```javascript
-Java.perform(function () {
-  console.log("[+] Hook Debug chargé");
-
-  var Debug = Java.use("android.os.Debug");
-
-  Debug.isDebuggerConnected.implementation = function () {
-    var result = this.isDebuggerConnected();
-    console.log("[Debug] isDebuggerConnected() => " + result);
-    return result;
-  };
-
-  Debug.waitingForDebugger.implementation = function () {
-    var result = this.waitingForDebugger();
-    console.log("[Debug] waitingForDebugger() => " + result);
-    return result;
-  };
-});
-```
+<p align="center"> <img src="images/a48.png" width="500"> </p>
 
 ```powershell
 frida -U -f jakhar.aseem.diva -l .\hook_debug.js
@@ -989,11 +633,8 @@ frida -U -f jakhar.aseem.diva -l .\hook_debug.js
 
 **Résultat obtenu :**
 
-```
-[+] Hook Debug chargé
-```
+<p align="center"> <img src="images/a49.png" width="500"> </p>
 
-*(Aucune autre ligne)*
 
 **Interprétation :** DIVA ne fait pas appel à `isDebuggerConnected()` ni à `waitingForDebugger()` dans les scénarios testés. Cela indique l'absence de mécanismes anti-debug Java explicites dans cette version de l'application.
 
@@ -1001,20 +642,7 @@ frida -U -f jakhar.aseem.diva -l .\hook_debug.js
 
 ### 8.7 Hook Runtime.exec — Commandes Système
 
-#### Script : `hook_runtime.js`
-
-```javascript
-Java.perform(function () {
-  console.log("[+] Hook Runtime.exec chargé");
-
-  var Runtime = Java.use("java.lang.Runtime");
-
-  Runtime.exec.overload("java.lang.String").implementation = function (cmd) {
-    console.log("[Runtime.exec] " + cmd);
-    return this.exec(cmd);
-  };
-});
-```
+<p align="center"> <img src="images/a50.png" width="600"> </p>
 
 ```powershell
 frida -U -f jakhar.aseem.diva -l .\hook_runtime.js
@@ -1026,28 +654,13 @@ frida -U -f jakhar.aseem.diva -l .\hook_runtime.js
 [+] Hook Runtime.exec chargé
 ```
 
-*(Aucune commande système interceptée)*
-
 **Interprétation :** DIVA n'exécute pas de commandes système via `Runtime.exec()` dans les actions testées. L'application ne semble pas interagir avec l'environnement système de cette manière.
 
 ---
 
 ### 8.8 Hook File Java — Chemins de Fichiers
 
-#### Script : `hook_file_java.js`
-
-```javascript
-Java.perform(function () {
-  console.log("[+] Hook File chargé");
-
-  var File = Java.use("java.io.File");
-
-  File.$init.overload("java.lang.String").implementation = function (path) {
-    console.log("[File] nouveau chemin : " + path);
-    return this.$init(path);
-  };
-});
-```
+<p align="center"> <img src="images/a51.png" width="500"> </p>
 
 ```powershell
 frida -U -f jakhar.aseem.diva -l .\hook_file_java.js
@@ -1071,17 +684,17 @@ frida -U -f jakhar.aseem.diva -l .\hook_file_java.js
 
 | Script | Cible | Résultat obtenu | Statut |
 |--------|-------|----------------|--------|
-| `hello.js` | Validation Java | `[+] Frida Java.perform OK` | ✅ Succès |
-| `hello_native.js` | Validation native | `recv appelée` | ✅ Succès |
-| `hook_connect.js` | Réseau — connect | `fd=0x30, retour=0` | ✅ Connexion réseau détectée |
-| `hook_network.js` | Réseau — send/recv | `send/recv appelées` | ✅ Trafic réseau intercepté |
-| `hook_file.js` | Fichiers natifs | `divanotes.db` ouvert | ✅ BDD locale identifiée |
-| `hook_prefs.js` | SharedPrefs lecture | Aucune lecture | ⚪ Non utilisé (normal) |
-| `hook_prefs_write.js` | SharedPrefs écriture | `key=user, key=password` | ✅ Données en clair |
-| `hook_sqlite.js` | Requêtes SQL | `CREATE TABLE + INSERT` | ✅ Stockage en clair |
-| `hook_debug.js` | Anti-debug | Aucune vérification | ✅ Pas de protection |
-| `hook_runtime.js` | Commandes système | Aucune commande | ✅ Pas de shell |
-| `hook_file_java.js` | Chemins Java | Chemins de stockage | ✅ Zones identifiées |
+| `hello.js` | Validation Java | `[+] Frida Java.perform OK` |  Succès |
+| `hello_native.js` | Validation native | `recv appelée` |  Succès |
+| `hook_connect.js` | Réseau — connect | `fd=0x30, retour=0` |  Connexion réseau détectée |
+| `hook_network.js` | Réseau — send/recv | `send/recv appelées` |  Trafic réseau intercepté |
+| `hook_file.js` | Fichiers natifs | `divanotes.db` ouvert |  BDD locale identifiée |
+| `hook_prefs.js` | SharedPrefs lecture | Aucune lecture |  Non utilisé (normal) |
+| `hook_prefs_write.js` | SharedPrefs écriture | `key=user, key=password` |  Données en clair |
+| `hook_sqlite.js` | Requêtes SQL | `CREATE TABLE + INSERT` |  Stockage en clair |
+| `hook_debug.js` | Anti-debug | Aucune vérification |  Pas de protection |
+| `hook_runtime.js` | Commandes système | Aucune commande | Pas de shell |
+| `hook_file_java.js` | Chemins Java | Chemins de stockage |  Zones identifiées |
 
 ### Vulnerabilités Identifiées dans DIVA
 
@@ -1133,56 +746,6 @@ frida -U -f jakhar.aseem.diva -l .\hook_file_java.js
 
 ---
 
-## 13. Recommandations de Sécurité
-
-Sur la base des vulnérabilités identifiées lors de ce lab :
-
-### R1 — Ne Jamais Stocker de Mots de Passe en Clair
-
-```java
-// ❌ INTERDIT — ce que fait DIVA
-db.execSQL("INSERT INTO myuser VALUES ('" + user + "', '" + password + "')");
-
-// ✅ CORRECT — hacher le mot de passe avant stockage
-String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-db.execSQL("INSERT INTO myuser VALUES (?, ?)", new String[]{user, hashedPassword});
-```
-
-### R2 — Utiliser EncryptedSharedPreferences pour les Données Sensibles
-
-```java
-// ❌ INTERDIT — stockage en clair
-prefs.edit().putString("password", password).apply();
-
-// ✅ CORRECT — stockage chiffré AES-256
-MasterKey masterKey = new MasterKey.Builder(context)
-    .setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build();
-SharedPreferences encryptedPrefs = EncryptedSharedPreferences.create(
-    context, "secure_prefs", masterKey,
-    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM);
-```
-
-### R3 — Chiffrer la Base de Données SQLite
-
-Utiliser **SQLCipher** pour chiffrer la base entière :
-
-```java
-import net.sqlcipher.database.SQLiteDatabase;
-SQLiteDatabase.loadLibs(context);
-SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(dbPath, "mot_de_passe_fort", null);
-```
-
-### R4 — Ne Jamais Logger de Données Sensibles
-
-```java
-// ❌ INTERDIT
-Log.d("AUTH", "password=" + password);
-
-// ✅ CORRECT
-Log.d("AUTH", "password length=" + password.length());
-```
-
 ### Tableau des Bonnes Pratiques OWASP Mobile
 
 | Risque OWASP | Constaté dans DIVA | Correction |
@@ -1194,57 +757,4 @@ Log.d("AUTH", "password length=" + password.length());
 
 ---
 
-## 14. Conclusion
 
-Ce lab a permis de maîtriser l'**analyse dynamique d'applications Android** avec Frida, de l'installation jusqu'à l'exploitation de vulnérabilités réelles dans DIVA.
-
-### Compétences Acquises
-
-```
-┌──────────────────────────────────────────────────────────┐
-│                 BILAN DES COMPÉTENCES                    │
-├───────────────────────────┬──────────────────────────────┤
-│ Installation & Config     │ ✅ Frida + ADB + frida-server │
-│ Connexion PC → Android    │ ✅ emulator-5554 connecté     │
-│ Injection de scripts      │ ✅ hello.js + hello_native.js │
-│ Hooks natifs (libc.so)    │ ✅ connect, send, recv, open  │
-│ Hooks Java (JVM)          │ ✅ SharedPreferences, SQLite   │
-│ Analyse de vulnérabilités │ ✅ Stockage en clair identifié│
-│ Rédaction de rapport      │ ✅ Interprétations détaillées │
-└───────────────────────────┴──────────────────────────────┘
-```
-
-### Points Clés Retenus
-
-1. **Frida est un outil puissant** qui permet d'observer le comportement interne d'une app sans accès au code source
-2. **DIVA stocke des données sensibles en clair** — un exemple concret de mauvaise pratique à éviter
-3. **La corrélation native/Java** est essentielle : hook natif (open → divanotes.db) + hook Java (SQLite → INSERT) donnent une image complète
-4. **L'absence de protection anti-debug** dans DIVA facilite l'analyse et illustre l'importance de ces mécanismes en production
-5. **L'analyse dynamique complète l'analyse statique** — elle confirme ce que le code laisse supposer avec des données réelles d'exécution
-
----
-
-## 15. Références
-
-| Ressource | Lien |
-|-----------|------|
-| Documentation Frida | [frida.re/docs/home](https://frida.re/docs/home/) |
-| GitHub Frida Releases | [github.com/frida/frida/releases](https://github.com/frida/frida/releases) |
-| DIVA Android (APK) | [github.com/payatu/diva-android](https://github.com/payatu/diva-android) |
-| OWASP MASTG — Data Storage | [mas.owasp.org/MASTG/...MASVS-STORAGE](https://mas.owasp.org/MASTG/tests/android/MASVS-STORAGE/) |
-| ADB Platform Tools | [developer.android.com/tools/releases/platform-tools](https://developer.android.com/tools/releases/platform-tools) |
-| Android Developer — Security | [developer.android.com/training/articles/security-tips](https://developer.android.com/training/articles/security-tips) |
-| SQLCipher pour Android | [zetetic.net/sqlcipher/sqlcipher-for-android](https://www.zetetic.net/sqlcipher/sqlcipher-for-android/) |
-
----
-
-<div align="center">
-
-**Réalisé dans le cadre du LAB 10 — Sécurité des Applications Mobiles**
-*École Marocaine des Sciences de l'Ingénieur — Cours : Sécurité Android*
-
-Étudiante : **Hajar Chaira**
-Enseignante : **Mme Oumaima AIT SAID**
-Plateforme : **MLIAEdu**
-
-</div>
